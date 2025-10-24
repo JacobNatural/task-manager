@@ -1,0 +1,32 @@
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: reactive-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: testdb
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - task-manager-network
+
+  webapp:
+    image: jakubmarjankowski/task-manager:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '8080:8080'
+    networks:
+      - task-manager-network
+
+volumes:
+  mongo-data:
+
+networks:
+  task-manager-network:

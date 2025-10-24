@@ -1,0 +1,12 @@
+com.app.taskmanager
+com.app.taskmanager.aop
+com.app.taskmanager.configuration
+com.app.taskmanager.contoller
+com.app.taskmanager.dto.create
+com.app.taskmanager.dto.response
+com.app.taskmanager.repository
+com.app.taskmanager.repository.impl
+com.app.taskmanager.repository.model
+com.app.taskmanager.repository.view
+com.app.taskmanager.service
+com.app.taskmanager.service.impl
