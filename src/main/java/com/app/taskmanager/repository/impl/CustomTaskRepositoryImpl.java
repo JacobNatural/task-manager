@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of {@link CustomTaskRepository} using {@link ReactiveMongoTemplate}.
@@ -92,23 +94,22 @@ public class CustomTaskRepositoryImpl implements CustomTaskRepository {
      * @return the constructed {@link Criteria} for query filtering
      */
     private Criteria buildCriteria(String userId, Status status, LocalDateTime fromTime, LocalDateTime toTime) {
-        var criteria = new Criteria();
-
+        List<Criteria> criteriaList = new ArrayList<>();
         if (userId != null && !userId.isEmpty()) {
-            criteria.and("userId").is(userId);
+            criteriaList.add(Criteria.where("userId").is(userId));
         }
 
         if (status != null) {
-            criteria.and("status").is(status);
+            criteriaList.add(Criteria.where("status").is(status));
         }
 
         if (fromTime != null) {
-            criteria.and("creationDate").gte(fromTime);
+            criteriaList.add(Criteria.where("creationDate").gte(fromTime));
         }
 
         if (toTime != null) {
-            criteria.and("creationDate").gte(toTime);
+            criteriaList.add(Criteria.where("creationDate").lte(toTime));
         }
-        return criteria;
+        return new Criteria().andOperator(criteriaList.toArray(Criteria[]::new));
     }
 }
