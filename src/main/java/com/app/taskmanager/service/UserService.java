@@ -2,7 +2,11 @@ package com.app.taskmanager.service;
 
 import com.app.taskmanager.dto.create.AddTaskDto;
 import com.app.taskmanager.dto.create.CreateUserDto;
-import com.app.taskmanager.dto.response.*;
+import com.app.taskmanager.dto.filters.FilterDto;
+import com.app.taskmanager.dto.response.IdResponseDto;
+import com.app.taskmanager.dto.response.PageResponseDto;
+import com.app.taskmanager.dto.response.UpdateResponseDto;
+import com.app.taskmanager.dto.response.UserResponseDto;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -40,13 +44,15 @@ public interface UserService {
     Mono<UserResponseDto> findUserByUsername(String username);
 
     /**
-     * Retrieves all users with pagination.
+     * Retrieves all users with pagination and optional filtering.
      *
-     * @param page the page number (zero-based)
-     * @param size the number of users per page
-     * @return a {@link Mono} emitting a {@link PageResponseDto} of {@link UserResponseDto}
+     * @param page   the page number (zero-based)
+     * @param size   the number of users per page
+     * @param filter the {@link FilterDto} containing filtering criteria
+     * @return a {@link Mono} emitting a {@link PageResponseDto} containing a list of {@link UserResponseDto},
+     *         total number of users, and pagination details
      */
-    Mono<PageResponseDto<UserResponseDto>> findAllUsers(int page, int size);
+    Mono<PageResponseDto<UserResponseDto>> findAllUsers(int page, int size, FilterDto filter);
 
     /**
      * Assigns tasks to a user.

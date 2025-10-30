@@ -1,7 +1,7 @@
 package com.app.taskmanager.repository;
 
-import com.app.taskmanager.repository.view.UserWithPaginationView;
 import com.app.taskmanager.repository.model.User;
+import com.app.taskmanager.repository.view.UserWithPaginationAndFilterView;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
  * Extends {@link ReactiveMongoRepository} to provide standard CRUD operations
  * and custom aggregation queries for pagination and counting.
  */
-public interface UserRepository extends ReactiveMongoRepository<User, String> {
+public interface UserRepository extends ReactiveMongoRepository<User, String>, CustomGenericFilter<UserWithPaginationAndFilterView> {
 
     /**
      * Finds a user by their username.
@@ -29,7 +29,7 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
      *
      * @param skip  the number of documents to skip
      * @param limit the maximum number of documents to return
-     * @return a {@link Mono} emitting a {@link UserWithPaginationView} containing the users and count information
+     * @return a {@link Mono} emitting a {@link UserWithPaginationAndFilterView} containing the users and count information
      */
     @Aggregation(
             """
@@ -41,5 +41,5 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
         }
     """
     )
-    Mono<UserWithPaginationView> findAllWithPaginationAndCount(int skip, int limit);
+    Mono<UserWithPaginationAndFilterView> findAllWithPaginationAndCount(int skip, int limit);
 }

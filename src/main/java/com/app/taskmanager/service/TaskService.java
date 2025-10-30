@@ -2,13 +2,13 @@ package com.app.taskmanager.service;
 
 import com.app.taskmanager.dto.create.CreateTaskDto;
 import com.app.taskmanager.dto.create.UpdateTaskDto;
+import com.app.taskmanager.dto.filters.FilterDto;
 import com.app.taskmanager.dto.response.IdResponseDto;
 import com.app.taskmanager.dto.response.PageResponseDto;
 import com.app.taskmanager.dto.response.TaskResponseDto;
 import com.app.taskmanager.dto.response.UpdateResponseDto;
-import com.app.taskmanager.repository.model.Status;
 import reactor.core.publisher.Mono;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 /**
@@ -30,16 +30,13 @@ public interface TaskService {
     /**
      * Retrieves all tasks with optional filtering and pagination.
      *
-     * @param page     the page number (zero-based)
-     * @param size     the number of tasks per page
-     * @param userId   optional user ID to filter tasks
-     * @param status   optional status to filter tasks
-     * @param dataFrom optional start date for creation date filtering
-     * @param dataTo   optional end date for creation date filtering
+     * @param page   the page number (zero-based)
+     * @param size   the number of tasks per page
+     * @param filter the {@link FilterDto} containing filtering criteria
      * @return a {@link Mono} emitting a {@link PageResponseDto} of {@link TaskResponseDto}
      */
     Mono<PageResponseDto<TaskResponseDto>> findAllTasks(
-            long page, long size, String userId, Status status, LocalDateTime dataFrom, LocalDateTime dataTo);
+            long page, long size, FilterDto filter);
 
     /**
      * Creates a new task.

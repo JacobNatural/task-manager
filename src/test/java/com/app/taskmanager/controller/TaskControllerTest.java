@@ -1,12 +1,14 @@
 package com.app.taskmanager.controller;
 
 import com.app.taskmanager.EntityNotFoundException;
-import com.app.taskmanager.contoller.TaskController;
 import com.app.taskmanager.dto.create.CreateTaskDto;
 import com.app.taskmanager.dto.create.UpdateTaskDto;
+import com.app.taskmanager.dto.filters.FilterCriteriaDto;
+import com.app.taskmanager.dto.filters.FilterDto;
 import com.app.taskmanager.dto.response.IdResponseDto;
 import com.app.taskmanager.dto.response.PageResponseDto;
 import com.app.taskmanager.dto.response.TaskResponseDto;
+import com.app.taskmanager.repository.model.Operation;
 import com.app.taskmanager.repository.model.Status;
 import com.app.taskmanager.service.TaskService;
 import org.junit.jupiter.api.DisplayName;
@@ -87,18 +89,22 @@ public class TaskControllerTest {
         var task2 = new TaskResponseDto("testID2", "Title2", "Description2", LocalDateTime.now(),
                 Status.TO_DO, null);
 
+        var filterCriteria = new FilterCriteriaDto<>("title", "Title", Operation.IS);
+        var filterDto = new FilterDto(List.of(filterCriteria));
+
         var pageTaskResponse = new PageResponseDto<>(List.of(task1, task2), 5, 0, 2);
 
-        Mockito.when(taskService.findAllTasks(0, 2, null, null, null, null))
+        Mockito.when(taskService.findAllTasks(0, 2, filterDto))
                 .thenReturn(Mono.just(pageTaskResponse));
 
         webClient
-                .get()
+                .post()
                 .uri(uri -> uri
-                        .path("/tasks")
+                        .path("/tasks/all")
                         .queryParam("page", "0")
                         .queryParam("size", 2)
                         .build())
+                .bodyValue(filterDto)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PageResponseDto<TaskResponseDto>>() {
@@ -114,28 +120,32 @@ public class TaskControllerTest {
 
 
         Mockito.verify(taskService, Mockito.times(1))
-                .findAllTasks(0, 2, null, null, null, null);
+                .findAllTasks(0, 2, filterDto);
     }
 
     @Test
     @DisplayName("Should return 200 OK and a paginated list of tasks when requesting tasks with default pagination parameters.")
     public void test4() {
 
-        var task1 = new TaskResponseDto("A23VBN", "Title", "Description", LocalDateTime.now(),
+        var task1 = new TaskResponseDto("A23VBN", "Title", "Description1", LocalDateTime.now(),
                 Status.TO_DO, null);
-        var task2 = new TaskResponseDto("A23VBN", "Title", "Description", LocalDateTime.now(),
+        var task2 = new TaskResponseDto("A23VBN", "Title", "Description2", LocalDateTime.now(),
                 Status.TO_DO, null);
+
+        var filterCriteria = new FilterCriteriaDto<>("title", "Title", Operation.IS);
+        var filterDto = new FilterDto(List.of(filterCriteria));
 
         var pageTaskResponse = new PageResponseDto<>(List.of(task1, task2), 5, 0, 2);
 
-        Mockito.when(taskService.findAllTasks(0, 10, null, null, null, null))
+        Mockito.when(taskService.findAllTasks(0, 10, filterDto))
                 .thenReturn(Mono.just(pageTaskResponse));
 
         webClient
-                .get()
+                .post()
                 .uri(uri -> uri
-                        .path("/tasks")
+                        .path("/tasks/all")
                         .build())
+                .bodyValue(filterDto)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PageResponseDto<TaskResponseDto>>() {
@@ -151,7 +161,7 @@ public class TaskControllerTest {
 
 
         Mockito.verify(taskService, Mockito.times(1))
-                .findAllTasks(0, 10, null, null, null, null);
+                .findAllTasks(0, 10, filterDto);
     }
 
     @Test

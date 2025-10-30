@@ -1,10 +1,12 @@
 package com.app.taskmanager.controller;
 
 import com.app.taskmanager.EntityNotFoundException;
-import com.app.taskmanager.contoller.UserController;
 import com.app.taskmanager.dto.create.AddTaskDto;
 import com.app.taskmanager.dto.create.CreateUserDto;
+import com.app.taskmanager.dto.filters.FilterCriteriaDto;
+import com.app.taskmanager.dto.filters.FilterDto;
 import com.app.taskmanager.dto.response.*;
+import com.app.taskmanager.repository.model.Operation;
 import com.app.taskmanager.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -146,18 +148,22 @@ public class UserControllerTest {
         var list = new ArrayList<>(List.of(
                 new UserResponseDto("1ABB22", "firstName", "lastName", "username")));
 
+        var filterCriteria = new FilterCriteriaDto<>("name", "^f.*", Operation.REGEX);
+        var filterDto = new FilterDto(List.of(filterCriteria));
+
         var pageResponse = new PageResponseDto<>(list, 5, 1, 1);
 
-        Mockito.when(userService.findAllUsers(Mockito.anyInt(), Mockito.anyInt()))
+        Mockito.when(userService.findAllUsers(1, 1, filterDto))
                 .thenReturn(Mono.just(pageResponse));
 
         webClient
-                .get()
+                .post()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/users")
+                        .path("/users/all")
                         .queryParam("page", "1")
                         .queryParam("size", "1")
                         .build())
+                .bodyValue(filterDto)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PageResponseDto<UserResponseDto>>() {
@@ -170,7 +176,7 @@ public class UserControllerTest {
                 });
 
         Mockito.verify(userService, Mockito.times(1))
-                .findAllUsers(1, 1);
+                .findAllUsers(1, 1, filterDto);
     }
 
     @Test
@@ -180,16 +186,20 @@ public class UserControllerTest {
         var list = new ArrayList<>(List.of(
                 new UserResponseDto("1ABB22", "firstName", "lastName", "username")));
 
+        var filterCriteria = new FilterCriteriaDto<>("name", "^f.*", Operation.REGEX);
+        var filterDto = new FilterDto(List.of(filterCriteria));
+
         var pageResponse = new PageResponseDto<>(list, 5, 0, 1);
 
-        Mockito.when(userService.findAllUsers(Mockito.anyInt(), Mockito.anyInt()))
+        Mockito.when(userService.findAllUsers(0, 20, filterDto))
                 .thenReturn(Mono.just(pageResponse));
 
         webClient
-                .get()
+                .post()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/users")
+                        .path("/users/all")
                         .build())
+                .bodyValue(filterDto)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PageResponseDto<UserResponseDto>>() {
@@ -202,7 +212,7 @@ public class UserControllerTest {
                 });
 
         Mockito.verify(userService, Mockito.times(1))
-                .findAllUsers(0, 20);
+                .findAllUsers(0, 20, filterDto);
     }
 
     @Test

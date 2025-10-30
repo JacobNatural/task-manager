@@ -3,9 +3,13 @@ package com.app.taskmanager.service.impl;
 import com.app.taskmanager.EntityNotFoundException;
 import com.app.taskmanager.dto.create.AddTaskDto;
 import com.app.taskmanager.dto.create.CreateUserDto;
-import com.app.taskmanager.dto.response.*;
-import com.app.taskmanager.repository.model.User;
+import com.app.taskmanager.dto.filters.FilterDto;
+import com.app.taskmanager.dto.response.IdResponseDto;
+import com.app.taskmanager.dto.response.PageResponseDto;
+import com.app.taskmanager.dto.response.UpdateResponseDto;
+import com.app.taskmanager.dto.response.UserResponseDto;
 import com.app.taskmanager.repository.UserRepository;
+import com.app.taskmanager.repository.model.User;
 import com.app.taskmanager.service.TaskService;
 import com.app.taskmanager.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -69,17 +73,20 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Retrieves all users with pagination.
+     * Retrieves all users with pagination and optional filtering.
      *
-     * @param page the page number (zero-based)
-     * @param size the number of users per page
-     * @return a {@link Mono} emitting a {@link PageResponseDto} of {@link UserResponseDto}
+     * @param page   the page number (zero-based)
+     * @param size   the number of users per page
+     * @param filter the {@link FilterDto} containing filtering criteria
+     * @return a {@link Mono} emitting a {@link PageResponseDto} containing a list of {@link UserResponseDto},
+     *         total number of users, and pagination details
      */
     @Override
-    public Mono<PageResponseDto<UserResponseDto>> findAllUsers(int page, int size) {
-        return userRepository.findAllWithPaginationAndCount(page * size, size)
+    public Mono<PageResponseDto<UserResponseDto>> findAllUsers(int page, int size, FilterDto filter) {
+
+        return userRepository.findWithPaginationAndFilter(size, page, filter.filterCriteria())
                 .map(db -> new PageResponseDto(
-                        db.users().stream().map(User::toUserResponseDto).toList(),
+                        db.elements().stream().map(User::toUserResponseDto).toList(),
                         db.countInfo().get(0).totalCount(),
                         page, size));
     }

@@ -1,6 +1,7 @@
 package com.app.taskmanager.repository.view;
 
 import com.app.taskmanager.repository.model.Task;
+
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ public record TaskWithPaginationAndFilterView(
         /**
          * List of tasks returned by the query.
          */
-        List<Task> tasks,
+        List<Task> elements,
 
         /**
          * List containing count information, typically total count of tasks matching the filter.

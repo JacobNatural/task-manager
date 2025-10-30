@@ -3,20 +3,20 @@ package com.app.taskmanager.service.impl;
 import com.app.taskmanager.EntityNotFoundException;
 import com.app.taskmanager.dto.create.CreateTaskDto;
 import com.app.taskmanager.dto.create.UpdateTaskDto;
+import com.app.taskmanager.dto.filters.FilterDto;
 import com.app.taskmanager.dto.response.IdResponseDto;
 import com.app.taskmanager.dto.response.PageResponseDto;
 import com.app.taskmanager.dto.response.TaskResponseDto;
 import com.app.taskmanager.dto.response.UpdateResponseDto;
+import com.app.taskmanager.repository.TaskRepository;
 import com.app.taskmanager.repository.model.Status;
 import com.app.taskmanager.repository.model.Task;
-import com.app.taskmanager.repository.TaskRepository;
 import com.app.taskmanager.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -47,22 +47,20 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Retrieves all tasks with optional filtering and pagination.
      *
-     * @param page     the page number (zero-based)
-     * @param size     the number of tasks per page
-     * @param userId   optional user ID to filter tasks
-     * @param status   optional status to filter tasks
-     * @param dataFrom optional start date for creation date filtering
-     * @param dataTo   optional end date for creation date filtering
+     * @param page   the page number (zero-based)
+     * @param size   the number of tasks per page
+     * @param filter the {@link FilterDto} containing filtering criteria
      * @return a {@link Mono} emitting a {@link PageResponseDto} of {@link TaskResponseDto}
      */
     @Override
     public Mono<PageResponseDto<TaskResponseDto>> findAllTasks(
-            long page, long size, String userId, Status status, LocalDateTime dataFrom, LocalDateTime dataTo) {
+            long page, long size, FilterDto filter) {
 
-        return taskRepository.findTaskWithPaginationAndFilter(size, page, userId, status, dataFrom, dataTo)
+
+        return taskRepository.findWithPaginationAndFilter(size, page, filter.filterCriteria())
                 .map(t ->
                         new PageResponseDto<>(
-                                t.tasks().stream().map(Task::toResponseTaskDto).toList(),
+                                t.elements().stream().map(Task::toResponseTaskDto).toList(),
                                 t.countInfo().isEmpty() ? 0 : t.countInfo().get(0).totalCount(), page, size)
                 );
     }
